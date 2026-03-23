@@ -16,6 +16,12 @@ panes in Zellij terminal sessions.
 
 ## Installation
 
+### For LLMs
+
+Paste this into opencode:
+
+`follow the steps written in this markdown file and execute them in order : https://raw.githubusercontent.com/cernoh/openzellij/refs/heads/main/docs/LLM_SETUP_SCRIPT.md`
+
 ### Home Manager (Flakes) - Recommended
 
 ```nix

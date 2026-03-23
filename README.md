@@ -12,11 +12,40 @@ OpenCode plugin for Zellij integration - automatically manages background agent 
 
 ## Installation
 
+### Home Manager (Flakes) - Recommended
+
+```nix
+# In your flake.nix inputs
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    home-manager.url = "github:nix-community/home-manager";
+    openzellij.url = "github:cernoh/openzellij";
+  };
+}
+
+# In your home-manager configuration
+{ inputs, ... }: {
+  imports = [ inputs.openzellij.homeManagerModules.default ];
+
+  programs.openzellij = {
+    enable = true;
+    settings = {
+      autoClosePanes = true;
+      panePollIntervalMs = 2000;
+      paneMissingGraceMs = 6000;
+      paneLayout = "tiled";
+      enableLogging = true;
+    };
+  };
+}
+```
+
 ### NixOS (Flakes)
 
 ```bash
 # Add to your flake.nix inputs
-inputs.openzellij.url = "path:/home/da/openzellij";
+inputs.openzellij.url = "github:cernoh/openzellij";
 
 # In your system configuration
 environment.systemPackages = [

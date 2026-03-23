@@ -13,6 +13,89 @@ zellij --version  # Should show 0.30.0 or higher
 opencode --version  # Should show 1.0.0 or higher
 ```
 
+## Home Manager Installation (Recommended)
+
+### Using Flakes
+
+Add openzellij to your flake inputs:
+
+```nix
+# flake.nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    home-manager.url = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    openzellij.url = "github:cernoh/openzellij";
+  };
+
+  outputs = { self, nixpkgs, home-manager, openzellij, ... }: {
+    homeConfigurations.your-user = home-manager.lib.homeManagerConfiguration {
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      modules = [
+        openzellij.homeManagerModules.default
+        {
+          programs.openzellij = {
+            enable = true;
+            settings = {
+              autoClosePanes = true;
+              panePollIntervalMs = 2000;
+              paneMissingGraceMs = 6000;
+              paneLayout = "tiled";
+              enableLogging = true;
+            };
+          };
+        }
+      ];
+    };
+  };
+}
+```
+
+Then rebuild:
+```bash
+home-manager switch --flake .#your-user
+```
+
+### Standalone Home Manager
+
+In your `home.nix`:
+
+```nix
+{ inputs, pkgs, ... }: {
+  imports = [ inputs.openzellij.homeManagerModules.default ];
+
+  programs.openzellij = {
+    enable = true;
+    # Optional: customize package
+    package = inputs.openzellij.packages.${pkgs.system}.default;
+    # Optional: configure settings
+    settings = {
+      autoClosePanes = true;
+      panePollIntervalMs = 2000;
+      paneMissingGraceMs = 6000;
+      paneLayout = "tiled";
+      enableLogging = true;
+    };
+  };
+}
+```
+
+### Configuration Options
+
+The home-manager module provides:
+
+- `programs.openzellij.enable` - Enable the plugin (default: false)
+- `programs.openzellij.package` - Package to install (default: from flake)
+- `programs.openzellij.settings` - Settings object written to `~/.config/opencode/openzellij.json`
+
+Available settings:
+- `autoClosePanes` (bool) - Auto-close panes on completion
+- `panePollIntervalMs` (int) - Polling interval in milliseconds
+- `paneMissingGraceMs` (int) - Grace period before closing
+- `paneLayout` (string) - Layout mode: "floating", "tiled", etc.
+- `enableLogging` (bool) - Enable debug logging
+
 ## NixOS Installation
 
 ### Method 1: Using Flakes (Recommended)
@@ -24,7 +107,7 @@ Add openzellij to your flake inputs:
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    openzellij.url = "github:your-org/openzellij";  # or path:/local/path
+    openzellij.url = "github:cernoh/openzellij";
   };
 
   outputs = { self, nixpkgs, openzellij, ... }: {

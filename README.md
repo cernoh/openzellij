@@ -1,13 +1,17 @@
 # openzellij
 
-OpenCode plugin for Zellij integration - automatically manages background agent panes in Zellij terminal sessions.
+OpenCode plugin for Zellij integration - automatically manages background agent
+panes in Zellij terminal sessions.
 
 ## Features
 
-- **Auto-spawning panes**: Background OpenCode agents automatically open in Zellij floating panes
-- **Auto-close on completion**: Panes automatically close when agents finish (configurable)
+- **Auto-spawning panes**: Background OpenCode agents automatically open in
+  Zellij floating panes
+- **Auto-close on completion**: Panes automatically close when agents finish
+  (configurable)
 - **Agent visibility**: Track all active agent panes with logging
-- **Configurable behavior**: Fine-tune polling intervals, grace periods, and pane layout
+- **Configurable behavior**: Fine-tune polling intervals, grace periods, and
+  pane layout
 - **Cross-platform**: Works on NixOS, Linux, macOS via npm
 
 ## Installation

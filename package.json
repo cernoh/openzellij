@@ -1,0 +1,33 @@
+{
+  "name": "openzellij",
+  "version": "1.0.0",
+  "description": "OpenCode plugin for Zellij integration",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "node ./scripts/build.js",
+    "dev": "node ./scripts/build.js --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "keywords": ["opencode", "plugin", "zellij"],
+  "author": "",
+  "engines": {
+    "node": ">=18",
+    "bun": ">=1.0.0"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "zod": "^3.22.4",
+    "execa": "^8.0.1",
+    "@opencode-ai/sdk": "^1.0.0",
+    "@opencode-ai/plugin": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "esbuild": "^0.20.2",
+    "bun-types": "^1.0.21",
+    "typescript": "^5.4.5",
+    "vitest": "^1.5.2"
+  }
+}

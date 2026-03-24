@@ -1,4 +1,14 @@
+.direnv/
+.envrc.cache
+
 node_modules/
 dist/
 *.log
+
+.DS_Store
 .env
+.env.local
+
+coverage/
+.vitest/
+*.tsbuildinfo

@@ -1,6 +1,6 @@
 {
   "name": "openzellij",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "OpenCode plugin for Zellij integration",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -29,7 +29,11 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
-  "keywords": ["opencode", "plugin", "zellij"],
+  "keywords": [
+    "opencode",
+    "plugin",
+    "zellij"
+  ],
   "author": "",
   "engines": {
     "node": ">=18",

@@ -1,12 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { ZellijCLI } from '../src/utils/zellij'
 
 vi.mock('../src/utils/zellij', () => ({
-  ZellijCLI: vi.fn().mockImplementation(() => ({
-    listPanes: vi.fn().mockResolvedValue([]),
-    spawnPane: vi.fn().mockResolvedValue(undefined),
-    closePane: vi.fn().mockResolvedValue(undefined),
-  })),
+  ZellijCLI: vi.fn().mockImplementation(function() {
+    return {
+      listPanes: vi.fn().mockResolvedValue([]),
+      spawnPane: vi.fn().mockResolvedValue(undefined),
+      closePane: vi.fn().mockResolvedValue(undefined),
+    }
+  }),
 }))
+
+// Re-configure ZellijCLI mock after mockReset (from vitest config) clears it before each test
+beforeEach(() => {
+  vi.mocked(ZellijCLI).mockImplementation(function() {
+    return {
+      listPanes: vi.fn().mockResolvedValue([]),
+      spawnPane: vi.fn().mockResolvedValue(undefined),
+      closePane: vi.fn().mockResolvedValue(undefined),
+    }
+  })
+})
 
 describe('openzellij OpenCode plugin integration', () => {
   let mockContext: any

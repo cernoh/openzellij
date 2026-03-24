@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+vi.mock('../src/utils/zellij', () => ({
+  ZellijCLI: vi.fn().mockImplementation(() => ({
+    listPanes: vi.fn().mockResolvedValue([]),
+    spawnPane: vi.fn().mockResolvedValue(undefined),
+    closePane: vi.fn().mockResolvedValue(undefined),
+  })),
+}))
+
 describe('openzellij OpenCode plugin integration', () => {
   let mockContext: any
 

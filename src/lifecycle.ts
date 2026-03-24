@@ -108,7 +108,7 @@ export async function onDeactivate(): Promise<void> {
 
 export async function handleEvent(event: PluginEventInput): Promise<void> {
   if (!registry || !zellijCLI || !config || !client) {
-    return
+    return undefined
   }
   
   const { type, session } = event

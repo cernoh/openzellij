@@ -59,22 +59,39 @@ export const openzellij: Plugin = async (ctx) => {
   return {
     event: async ({ event }) => {
       if (!registry || !zellijCLI || !config || !client) {
-        return
+        return undefined
       }
-      
-      if (event.type === 'session.created') {
-        const info = (event as any).properties.info
-        const session = {
-          id: info.id,
-          title: info.title,
-          parentId: info.parentID || null,
-          status: 'running' as SessionState,
-          metadata: {}
+
+      try {
+        if (event.type === 'session.created') {
+          const info = (event as any).properties?.info
+          if (!info || !info.id) {
+            client?.logger?.warn('Received session.created event without valid info', { event })
+            return undefined
+          }
+          const session = {
+            id: info.id,
+            title: info.title,
+            parentId: info.parentID || null,
+            status: 'running' as SessionState,
+            metadata: {}
+          }
+          await spawnPaneForSession(session)
+        } else if (event.type === 'session.deleted') {
+          const info = (event as any).properties?.info
+          if (!info || !info.id) {
+            client?.logger?.warn('Received session.deleted event without valid info', { event })
+            return undefined
+          }
+          await closePaneForSession(info.id)
         }
-        await spawnPaneForSession(session)
-      } else if (event.type === 'session.deleted') {
-        const info = (event as any).properties.info
-        await closePaneForSession(info.id)
+        return undefined
+      } catch (error) {
+        client?.logger?.error(error instanceof Error ? error : new Error(String(error)), {
+          context: 'event handler',
+          eventType: event?.type
+        })
+        return undefined
       }
     }
   }

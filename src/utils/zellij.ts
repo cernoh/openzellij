@@ -39,9 +39,11 @@ export class ZellijCLI {
   }
 
   async spawnPane(command: string, options: { sessionName?: string; title?: string } = {}) {
-    const args = ['action', 'new-pane', '--floating', '--cwd', process.cwd(), '--', command]
-    if (options.sessionName) args.unshift('--session', options.sessionName)
-    if (options.title) args.unshift('--title', options.title)
+    const args = []
+    if (options.sessionName) args.push('--session', options.sessionName)
+    args.push('action', 'new-pane', '--floating', '--cwd', process.cwd())
+    if (options.title) args.push('--name', options.title)
+    args.push('--', command)
     await this.run(args)
   }
 

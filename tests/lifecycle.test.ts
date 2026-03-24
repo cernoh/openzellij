@@ -341,7 +341,9 @@ describe('startPolling / stopPolling', () => {
     })
 
     vi.advanceTimersByTime(2000)
-    await vi.runOnlyPendingTimersAsync()
+    await Promise.resolve()
+    vi.advanceTimersByTime(1)
+    await Promise.resolve()
 
     expect(mockClient.session.status).toHaveBeenCalled()
   })
@@ -544,7 +546,9 @@ describe('polling auto-close integration', () => {
     })
 
     vi.advanceTimersByTime(2000)
-    await vi.runOnlyPendingTimersAsync()
+    await Promise.resolve()
+    vi.advanceTimersByTime(1)
+    await Promise.resolve()
 
     expect(registry.get('ses-1')).toBeUndefined()
     // verify logging of active panes every 10 cycles — simulate 9 more cycles
@@ -552,7 +556,9 @@ describe('polling auto-close integration', () => {
       vi.advanceTimersByTime(2000)
       // run pending
       // eslint-disable-next-line no-await-in-loop
-      await vi.runOnlyPendingTimersAsync()
+      await Promise.resolve()
+    vi.advanceTimersByTime(1)
+    await Promise.resolve()
     }
 
     // after 10 cycles, debug should have been called with active panes (may be 'No active panes')
@@ -561,7 +567,7 @@ describe('polling auto-close integration', () => {
 
   it('respects grace period for missing sessions', async () => {
     const baseTime = new Date('2024-01-01T00:00:00Z').getTime()
-    vi.setSystemTime(baseTime)
+    vi.useFakeTimers({ now: baseTime })
     
     const mockClient = createMockClient()
     ;(mockClient.session.status as Mock).mockResolvedValue({ sessions: [] })
@@ -578,18 +584,21 @@ describe('polling auto-close integration', () => {
       lastUpdatedAt: Date.now(),
     })
 
-    await vi.advanceTimersByTimeAsync(2500)
+    vi.advanceTimersByTime(2500)
+    await Promise.resolve()
     
     const pane1 = registry.get('ses-1')
     expect(pane1).toBeDefined()
     expect(pane1!.missingSince).toBeDefined()
 
-    await vi.advanceTimersByTimeAsync(2500)
+    vi.advanceTimersByTime(2500)
+    await Promise.resolve()
     
     const pane2 = registry.get('ses-1')
     expect(pane2).toBeDefined()
 
-    await vi.advanceTimersByTimeAsync(4000)
+    vi.advanceTimersByTime(4000)
+    await Promise.resolve()
     
     expect(registry.get('ses-1')).toBeUndefined()
   })
@@ -626,7 +635,9 @@ describe('polling auto-close integration', () => {
     })
 
     vi.advanceTimersByTime(2000)
-    await vi.runOnlyPendingTimersAsync()
+    await Promise.resolve()
+    vi.advanceTimersByTime(1)
+    await Promise.resolve()
 
     expect(registry.get('ses-1')).toBeDefined()
   })

@@ -11,169 +11,8 @@
 ```bash
 zellij --version  # Should show 0.30.0 or higher
 opencode --version  # Should show 1.0.0 or higher
+node --version  # Should show 18.0.0 or higher
 ```
-
-## Home Manager Installation (Recommended)
-
-### Using Flakes
-
-Add openzellij to your flake inputs:
-
-```nix
-# flake.nix
-{
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    home-manager.url = "github:nix-community/home-manager";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    openzellij.url = "github:cernoh/openzellij";
-  };
-
-  outputs = { self, nixpkgs, home-manager, openzellij, ... }: {
-    homeConfigurations.your-user = home-manager.lib.homeManagerConfiguration {
-      pkgs = nixpkgs.legacyPackages.x86_64-linux;
-      modules = [
-        openzellij.homeManagerModules.default
-        {
-          programs.openzellij = {
-            enable = true;
-            settings = {
-              autoClosePanes = true;
-              panePollIntervalMs = 2000;
-              paneMissingGraceMs = 6000;
-              paneLayout = "tiled";
-              enableLogging = true;
-            };
-          };
-        }
-      ];
-    };
-  };
-}
-```
-
-Then rebuild:
-```bash
-home-manager switch --flake .#your-user
-```
-
-### Standalone Home Manager
-
-In your `home.nix`:
-
-```nix
-{ inputs, pkgs, ... }: {
-  imports = [ inputs.openzellij.homeManagerModules.default ];
-
-  programs.openzellij = {
-    enable = true;
-    # Optional: customize package
-    package = inputs.openzellij.packages.${pkgs.system}.default;
-    # Optional: configure settings
-    settings = {
-      autoClosePanes = true;
-      panePollIntervalMs = 2000;
-      paneMissingGraceMs = 6000;
-      paneLayout = "tiled";
-      enableLogging = true;
-    };
-  };
-}
-```
-
-### Configuration Options
-
-The home-manager module provides:
-
-- `programs.openzellij.enable` - Enable the plugin (default: false)
-- `programs.openzellij.package` - Package to install (default: from flake)
-- `programs.openzellij.settings` - Settings object written to `~/.config/opencode/openzellij.json`
-
-Available settings:
-- `autoClosePanes` (bool) - Auto-close panes on completion
-- `panePollIntervalMs` (int) - Polling interval in milliseconds
-- `paneMissingGraceMs` (int) - Grace period before closing
-- `paneLayout` (string) - Layout mode: "floating", "tiled", etc.
-- `enableLogging` (bool) - Enable debug logging
-
-## NixOS Installation
-
-### Method 1: Using Flakes (Recommended)
-
-Add openzellij to your flake inputs:
-
-```nix
-# flake.nix
-{
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    openzellij.url = "github:cernoh/openzellij";
-  };
-
-  outputs = { self, nixpkgs, openzellij, ... }: {
-    nixosConfigurations.your-host = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [
-        {
-          environment.systemPackages = [
-            openzellij.packages.x86_64-linux.default
-          ];
-        }
-      ];
-    };
-  };
-}
-```
-
-Then rebuild:
-```bash
-sudo nixos-rebuild switch --flake .#your-host
-```
-
-### Method 2: Using configuration.nix
-
-```nix
-# configuration.nix
-{ config, pkgs, ... }:
-let
-  openzellij = pkgs.callPackage /path/to/openzellij/nix/default.nix {};
-in
-{
-  environment.systemPackages = [
-    openzellij
-    pkgs.zellij
-  ];
-}
-```
-
-Then rebuild:
-```bash
-sudo nixos-rebuild switch
-```
-
-### Method 3: Using nix-env
-
-```bash
-# Install from local path
-nix-env -f /path/to/openzellij/nix/default.nix -i
-
-# Or with flakes
-nix profile install /path/to/openzellij
-```
-
-### Development Environment
-
-Use the dev shell for contributing:
-
-```bash
-# With flakes
-nix develop
-
-# Or legacy
-nix-shell
-```
-
-This provides Node.js, TypeScript, and Vitest.
 
 ## npm Installation
 
@@ -199,10 +38,20 @@ Then add to OpenCode config:
 }
 ```
 
+### Using Bun
+
+```bash
+# Global installation
+bun install -g openzellij
+
+# Project-local
+bun install openzellij
+```
+
 ### Verification
 
 ```bash
-# Check if installed
+# Check if installed globally
 npm list -g openzellij
 
 # Or for local
@@ -290,15 +139,6 @@ OpenCode logs will show:
 3. Increase poll interval if too fast: `"panePollIntervalMs": 5000`
 4. Check grace period: `"paneMissingGraceMs": 6000`
 
-### Build Errors (Nix)
-
-**Symptom**: `nix build` fails
-
-**Common Issues**:
-- **Not a git repo**: Run `git init && git add .` before building
-- **Architecture mismatch**: Build on matching platform (x86_64-linux vs aarch64-linux)
-- **npmDepsHash invalid**: Regenerate with `nix run nixpkgs#prefetch-npm-deps -- package-lock.json`
-
 ### Permission Errors
 
 **Symptom**: Can't create config directory
@@ -316,19 +156,47 @@ chmod 700 ~/.config/opencode
 npm uninstall -g openzellij
 ```
 
-### NixOS
-Remove from `environment.systemPackages` and rebuild:
+### Bun
 ```bash
-sudo nixos-rebuild switch
+bun remove -g openzellij
 ```
 
-### nix-env
+## Development Environment
+
+### Setup
+
 ```bash
-nix-env -e openzellij
+# Clone the repository
+git clone https://github.com/cernoh/openzellij.git
+cd openzellij
+
+# Install dependencies
+npm install
+
+# Build the plugin
+npm run build
+
+# Run tests
+npm test
+
+# Watch mode for development
+npm run dev
+```
+
+### Project Structure
+
+```
+openzellij/
+├── src/           # TypeScript source files
+├── dist/          # Built output (generated)
+├── docs/          # Documentation
+├── scripts/       # Build scripts
+├── package.json   # npm configuration
+└── tsconfig.json  # TypeScript configuration
 ```
 
 ## Next Steps
 
 - Configure the plugin: [CONFIG.md](CONFIG.md)
 - Check logs for activity: `~/.config/opencode/logs/`
-- Report issues: [GitHub Issues](https://github.com/your-org/openzellij/issues)
+- Report issues: [GitHub Issues](https://github.com/cernoh/openzellij/issues)

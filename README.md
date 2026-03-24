@@ -12,7 +12,7 @@ panes in Zellij terminal sessions.
 - **Agent visibility**: Track all active agent panes with logging
 - **Configurable behavior**: Fine-tune polling intervals, grace periods, and
   pane layout
-- **Cross-platform**: Works on NixOS, Linux, macOS via npm
+- **Cross-platform**: Works on Linux, macOS, Windows via npm
 
 ## Installation
 
@@ -22,67 +22,38 @@ Paste this into opencode:
 
 `follow the steps written in this markdown file and execute them in order : https://raw.githubusercontent.com/cernoh/openzellij/refs/heads/main/docs/LLM_SETUP_SCRIPT.md`
 
-### Home Manager (Flakes) - Recommended
-
-```nix
-# In your flake.nix inputs
-{
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    home-manager.url = "github:nix-community/home-manager";
-    openzellij.url = "github:cernoh/openzellij";
-  };
-}
-
-# In your home-manager configuration
-{ inputs, ... }: {
-  imports = [ inputs.openzellij.homeManagerModules.default ];
-
-  programs.openzellij = {
-    enable = true;
-    settings = {
-      autoClosePanes = true;
-      panePollIntervalMs = 2000;
-      paneMissingGraceMs = 6000;
-      paneLayout = "tiled";
-      enableLogging = true;
-    };
-  };
-}
-```
-
-### NixOS (Flakes)
+### npm (Recommended)
 
 ```bash
-# Add to your flake.nix inputs
-inputs.openzellij.url = "github:cernoh/openzellij";
-
-# In your system configuration
-environment.systemPackages = [
-  inputs.openzellij.packages.${system}.default
-];
-```
-
-### NixOS (Traditional)
-
-```nix
-# In your configuration.nix
-environment.systemPackages = let
-  openzellij = pkgs.callPackage /path/to/openzellij/nix/default.nix {};
-in [
-  openzellij
-];
-```
-
-### npm (Cross-platform)
-
-```bash
-# Global installation
+# Global installation (recommended)
 npm install -g openzellij
 
 # Project-local
 npm install openzellij
 ```
+
+### Adding to OpenCode Config
+
+After installing via npm, add `openzellij` to your OpenCode configuration:
+
+**Global configuration** (`~/.config/opencode/opencode.json`):
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["openzellij"]
+}
+```
+
+**Project configuration** (`opencode.json` in your project root):
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["openzellij"]
+}
+```
+
+OpenCode will automatically install and load the plugin at startup. The plugin will
+activate when you launch background agents in a Zellij session.
 
 ## Quick Start
 

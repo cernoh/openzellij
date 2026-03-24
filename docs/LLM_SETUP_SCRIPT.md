@@ -7,7 +7,7 @@
 ## 1. Runbook Usage
 
 1. Read this file top-to-bottom before issuing any commands.
-2. Confirm the user's operating environment (Nix/Home Manager vs generic npm) and toolchain (Node/Bun versions).
+2. Confirm the user's operating environment and toolchain (Node/Bun versions).
 3. Execute each numbered step in order, reporting results and capturing errors verbatim.
 4. Never skip a verification command—report failures immediately and branch into Troubleshooting.
 
@@ -17,7 +17,7 @@
 
 - Repository: `cernoh/openzellij`
 - Plugin role: auto-spawn & auto-close OpenCode agent panes inside Zellij sessions
-- Minimum versions: Zellij ≥ 0.30.0, OpenCode ≥ 1.0.0, Node.js ≥ 18 (or Bun ≥ 1.0.0 when using npm installs)
+- Minimum versions: Zellij ≥ 0.30.0, OpenCode ≥ 1.0.0, Node.js ≥ 18 (or Bun ≥ 1.0.0)
 
 ---
 
@@ -35,45 +35,27 @@ node --version    # or bun --version
 
 ## 4. Setup Flow
 
-### Step 4.1 – Select installation path
+### Step 4.1 – Install via npm/bun
 
-Ask which target applies and follow the matching subsection:
-
-#### A) Home Manager (flakes)
-1. Ensure `flake.nix` includes:
-   ```nix
-   inputs.openzellij.url = "github:cernoh/openzellij";
-   ```
-2. Add to home-manager configuration:
-   ```nix
-   { inputs, ... }: {
-     imports = [ inputs.openzellij.homeManagerModules.default ];
-     programs.openzellij.enable = true;
-   }
-   ```
-3. Apply configuration: `home-manager switch` (capture output).
-
-#### B) NixOS system (flakes)
-1. Add the same `inputs.openzellij` entry to `flake.nix`.
-2. In `configuration.nix`, include:
-   ```nix
-   environment.systemPackages = [ inputs.openzellij.packages.${system}.default ];
-   ```
-3. Rebuild: `sudo nixos-rebuild switch`.
-
-#### C) NixOS traditional (no flakes)
-1. Reference plugin via `pkgs.callPackage /path/to/openzellij/nix/default.nix {}`.
-2. Append the resulting derivation to `environment.systemPackages`.
-3. Run `sudo nixos-rebuild switch`.
-
-#### D) npm / Bun (cross-platform)
 ```bash
-# pick global install unless user insists on local
+# Global installation (recommended)
 npm install -g openzellij
-# or
+
+# Or using bun
 bun install -g openzellij
+
+# For project-local installation
+npm install openzellij
+# or
+bun install openzellij
 ```
-- For local installs, run `npm install openzellij` inside the project.
+
+Capture output. Verify installation:
+```bash
+npm list -g openzellij
+# or
+bun pm ls -g openzellij
+```
 
 ### Step 4.2 – Configure plugin behavior
 
@@ -117,8 +99,10 @@ opencode "Create a temporary note describing my dev environment"
 ### Step 4.5 – Logging & diagnostics
 
 ```bash
+# Check OpenCode logs
+tail -f ~/.local/share/opencode/logs/latest.log
+# or
 journalctl --user -u opencode.service -f  # if running via systemd
-# or inspect ~/.local/share/opencode/logs/latest.log
 ```
 - Confirm entries such as `openzellij: pane attached`, `openzellij: pane closed`.
 
@@ -128,10 +112,11 @@ journalctl --user -u opencode.service -f  # if running via systemd
 
 | Symptom | Checks | Remediation |
 |---------|--------|-------------|
-| Plugin not discovered | `opencode --list-plugins` output missing `openzellij` | Ensure installation path is on `PATH` (npm) or included in Nix environment; add explicit entry to OpenCode config |
+| Plugin not discovered | `opencode --list-plugins` output missing `openzellij` | Ensure installation path is on `PATH` (npm) or included in environment; add explicit entry to OpenCode config |
 | Panes never spawn | Verify `zellijBinary` path, confirm `$ZELLIJ` env var is set inside session | Set `zellijBinary` to absolute path or run `eval $(zellij setup --generate-auto-start zsh)` |
 | Panes stay open | Ensure `autoClosePanes: true`, inspect logs for polling errors | Increase `paneMissingGraceMs`; manually close pane while root cause is investigated |
-| Build failures (Nix) | Nix complains about dirty tree | Run `git init && git add .` before `nix build` to satisfy flake purity |
+| Permission errors | Can't create config directory | Run `mkdir -p ~/.config/opencode && chmod 700 ~/.config/opencode` |
+| npm install fails | Network issues or permission problems | Try with `sudo` for global install, or use project-local install instead |
 
 ---
 
@@ -141,8 +126,8 @@ When finishing, respond with:
 
 ```
 Setup Summary:
-- Install path: <Home Manager | NixOS | npm>
-- Config file updated: <yes/no>
+- Install method: <npm global | npm local | bun global | bun local>
+- Config file created: <yes/no>
 - Verification result: <success/failure + key log line>
 Issues Encountered:
 - <list or "none">

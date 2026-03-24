@@ -160,7 +160,7 @@ Path to the zellij executable. Uses PATH resolution by default.
 
 **Example**:
 ```json
-{ "zellijBinary": "/nix/store/.../bin/zellij" }
+{ "zellijBinary": "/usr/local/bin/zellij" }
 ```
 
 **When to adjust**: Set absolute path if zellij is not in PATH or you need a specific version.

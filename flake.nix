@@ -24,8 +24,6 @@
           typescript
           nodePackages.typescript-language-server
           
-          # Testing
-          vitest
           
           # Zellij for testing integration
           zellij

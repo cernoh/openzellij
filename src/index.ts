@@ -96,3 +96,6 @@ export const openzellij: Plugin = async (ctx) => {
     }
   }
 }
+
+// Default export for better CJS/ESM interop
+export default openzellij

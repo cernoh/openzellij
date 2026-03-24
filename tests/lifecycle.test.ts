@@ -21,7 +21,7 @@ import type {
   PluginConfig,
   OpencodeClient,
 } from '../src/types'
-import type { ZellijPaneInfo } from '../src/utils/zellij'
+import { ZellijCLI, type ZellijPaneInfo } from '../src/utils/zellij'
 
 vi.mock('../src/config', () => ({
   loadConfig: vi.fn(() => ({
@@ -38,12 +38,25 @@ vi.mock('../src/config', () => ({
 }))
 
 vi.mock('../src/utils/zellij', () => ({
-  ZellijCLI: vi.fn().mockImplementation(() => ({
-    listPanes: vi.fn().mockResolvedValue([]),
-    spawnPane: vi.fn().mockResolvedValue(undefined),
-    closePane: vi.fn().mockResolvedValue(undefined),
-  })),
+  ZellijCLI: vi.fn().mockImplementation(function() {
+    return {
+      listPanes: vi.fn().mockResolvedValue([]),
+      spawnPane: vi.fn().mockResolvedValue(undefined),
+      closePane: vi.fn().mockResolvedValue(undefined),
+    }
+  }),
 }))
+
+// Re-configure ZellijCLI mock after mockReset (from vitest config) clears it before each test
+beforeEach(() => {
+  vi.mocked(ZellijCLI).mockImplementation(function() {
+    return {
+      listPanes: vi.fn().mockResolvedValue([]),
+      spawnPane: vi.fn().mockResolvedValue(undefined),
+      closePane: vi.fn().mockResolvedValue(undefined),
+    }
+  })
+})
 
 function createMockClient(): OpencodeClient {
   return {
@@ -546,9 +559,9 @@ describe('polling auto-close integration', () => {
     })
 
     vi.advanceTimersByTime(2000)
-    await Promise.resolve()
-    vi.advanceTimersByTime(1)
-    await Promise.resolve()
+    await Promise.resolve()  // status() resolves
+    await Promise.resolve()  // listPanes() resolves, closePaneForSession starts
+    await Promise.resolve()  // closePane() resolves, registry.remove runs
 
     expect(registry.get('ses-1')).toBeUndefined()
     // verify logging of active panes every 10 cycles — simulate 9 more cycles
@@ -585,20 +598,24 @@ describe('polling auto-close integration', () => {
     })
 
     vi.advanceTimersByTime(2500)
-    await Promise.resolve()
+    await Promise.resolve()  // status() resolves
+    await Promise.resolve()  // listPanes() resolves, missingSince set
     
     const pane1 = registry.get('ses-1')
     expect(pane1).toBeDefined()
     expect(pane1!.missingSince).toBeDefined()
 
     vi.advanceTimersByTime(2500)
-    await Promise.resolve()
+    await Promise.resolve()  // status() resolves
+    await Promise.resolve()  // listPanes() resolves, within grace period → no close
     
     const pane2 = registry.get('ses-1')
     expect(pane2).toBeDefined()
 
     vi.advanceTimersByTime(4000)
-    await Promise.resolve()
+    await Promise.resolve()  // both polls' status() resolve, listPanes() start
+    await Promise.resolve()  // both polls' listPanes() resolve; grace-exceeded poll triggers close
+    await Promise.resolve()  // closePane() resolves, registry.remove runs
     
     expect(registry.get('ses-1')).toBeUndefined()
   })

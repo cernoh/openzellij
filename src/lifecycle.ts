@@ -164,7 +164,7 @@ export function stopPolling(): void {
   }
 }
 
-async function pollPaneStatus(): Promise<void> {
+export async function pollPaneStatus(): Promise<void> {
   if (!registry || !zellijCLI || !config || !client) {
     return
   }

@@ -7,6 +7,12 @@ import type { SessionState, OpencodeClient } from './types'
 export type { PluginConfig, TrackedPane } from './types'
 export { loadConfig, DEFAULT_CONFIG } from './config'
 export { ZellijCLI } from './utils/zellij'
+export {
+  createTestHarness,
+  HeadlessZellijCLI,
+  MockOpencodeClient,
+} from './testing'
+export type { TestHarness, HarnessOptions, HarnessCallRecord, LogEntry } from './testing'
 
 let registry: PaneRegistryImpl | null = null
 let zellijCLI: ZellijCLI | null = null

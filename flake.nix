@@ -73,6 +73,30 @@
           # Environment variables
           OPENCODE_PLUGIN_DEV = "true";
         };
+
+        # Run the full test suite with `nix check` or `nix build .#checks.<system>.default`
+        checks.default = pkgs.stdenv.mkDerivation {
+          name = "openzellij-tests";
+          src = ./.;
+
+          nativeBuildInputs = with pkgs; [ nodejs_22 ];
+
+          # Allow network access for `npm ci` — this check is intended for
+          # developer use and CI environments that have outbound internet.
+          __noChroot = true;
+
+          buildPhase = ''
+            export HOME=$(mktemp -d)
+            export npm_config_cache=$(mktemp -d)
+            npm ci
+            npm test
+          '';
+
+          installPhase = ''
+            mkdir -p $out
+            echo "Tests passed" > $out/result
+          '';
+        };
         
         # Package definition (optional - for installing the plugin)
         packages.default = pkgs.buildNpmPackage {

@@ -27,7 +27,8 @@
     "build": "node ./scripts/build.js",
     "dev": "node ./scripts/build.js --watch",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:headless": "OPENCODE_HEADLESS=1 vitest run --reporter=verbose tests/harness.test.ts"
   },
   "keywords": [
     "opencode",

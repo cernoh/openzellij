@@ -1,5 +1,7 @@
 # openzellij
-
+---
+WARNING ⚠️: currently broken, i would not recommend using it currently
+---
 OpenCode plugin for Zellij integration - automatically manages background agent
 panes in Zellij terminal sessions.
 

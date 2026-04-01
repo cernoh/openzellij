@@ -43,6 +43,13 @@
           buildInputs = devTools;
           
           shellHook = ''
+                                                    export HOME=$PWD/.sandbox/home
+    export XDG_CONFIG_HOME=$HOME/.config
+    export XDG_CACHE_HOME=$HOME/.cache
+    export XDG_DATA_HOME=$HOME/.local/share
+        mkdir -p $XDG_CONFIG_HOME $XDG_CACHE_HOME $XDG_DATA_HOME
+
+
             echo "🔧 OpenCode Plugin Development Environment"
             echo ""
             echo "Available commands:"
